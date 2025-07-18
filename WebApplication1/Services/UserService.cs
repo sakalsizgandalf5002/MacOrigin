@@ -51,17 +51,22 @@ public class UserService : IUserService
         await _context.SaveChangesAsync();
     }
 
-    public async Task<string> LoginAsync(UserLoginDto dto)
+    public async Task<AuthDto> LoginAsync(UserLoginDto dto)
     {
         var user = await _context.Users
-                                 .SingleOrDefaultAsync(u => u.Email == dto.Email)
-                   ?? throw new InvalidOperationException("User not found.");
+            .SingleOrDefaultAsync(u => u.Email == dto.Email)
+            ?? throw new InvalidOperationException("User not found.");
 
         if (!_hasher.VerifyPassword(dto.Password, user.PasswordHash))
             throw new InvalidOperationException("Invalid credentials.");
 
-        return _token.CreateToken(user);
+        var accessToken = _token.CreateToken(user);
+        var refreshToken = _token.GenerateRefreshToken();
+        user.RefreshTokens.Add(refreshToken);
+        await _context.SaveChangesAsync();
+        return new AuthDto(accessToken, refreshToken.Token.ToString());
     }
+
 
     public async Task CreateAsync(UserCreateDto dto)
     {
@@ -97,4 +102,23 @@ public class UserService : IUserService
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();
     }
+    public async Task<AuthDto> RefreshAsync(Guid token)
+    {
+        var rt = await _context.RefreshTokens
+            .Include(r => r.User)
+            .SingleOrDefaultAsync(r =>
+                r.Token == token && !r.Revoked && r.Expires > DateTime.UtcNow)
+            ?? throw new InvalidOperationException("Invalid refresh token.");
+
+        rt.Revoked = true;
+
+        var access = _token.CreateToken(rt.User);
+        var newRt = _token.GenerateRefreshToken();
+        rt.User.RefreshTokens.Add(newRt);
+
+        await _context.SaveChangesAsync();
+
+        return new AuthDto(access, newRt.Token.ToString());
+    }
+
 }

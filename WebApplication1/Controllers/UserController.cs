@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using WebApplication1.DTOs.UserDTO;
+using WebApplication1.Services;
 using WebApplication1.Services.Interfaces;
 
 namespace WebApplication1.Controllers;
@@ -19,6 +20,14 @@ public class UsersController : ControllerBase
     {
         await _svc.RegisterAsync(dto);
         return Ok();
+    }
+    public record TokenDto(Guid Token);
+
+    [HttpPost("refresh")]
+    public async Task<ActionResult<AuthDto>> Refresh([FromBody] TokenDto dto)
+    {
+        var result = await _svc.RefreshAsync(dto.Token);
+        return Ok(result);
     }
 
     [HttpPost("login")]

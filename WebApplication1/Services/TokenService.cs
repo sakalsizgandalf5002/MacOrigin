@@ -40,5 +40,13 @@ public class TokenService : ITokenService
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+    public RefreshToken GenerateRefreshToken()
+    {
+        return new RefreshToken
+        {
+            Token = Guid.NewGuid(),
+            Expires = DateTime.UtcNow.AddDays(7)
+        };
+    }
+
 }
-    

@@ -3,9 +3,11 @@ public interface IUserService
 {
    
     Task RegisterAsync(UserRegisterDto dto);
-    Task<string> LoginAsync(UserLoginDto dto);
+    Task<AuthDto> LoginAsync(UserLoginDto dto);
+    Task<AuthDto> RefreshAsync(Guid token);
 
-   
+
+
     Task CreateAsync(UserCreateDto dto);   
 
     
