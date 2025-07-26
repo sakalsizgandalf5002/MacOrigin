@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    environment:
+      SA_PASSWORD: YourPass1!
+      ACCEPT_EULA: Y
+    ports:
+      - "1433:1433"
+    networks:
+      - app-network
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: webapi
+    depends_on:
+      - db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlmac,1433;Database=MyDb;User Id=sa;Password=YourPass1!;TrustServerCertificate=True;
+    ports:
+      - "5000:80"
+    networks:
+      - app-network
+
+networks:
+  app-network:
