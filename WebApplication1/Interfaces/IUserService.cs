@@ -4,7 +4,7 @@ public interface IUserService
    
     Task RegisterAsync(UserRegisterDto dto);
     Task<AuthDto> LoginAsync(UserLoginDto dto);
-    Task<AuthDto> RefreshAsync(Guid token);
+    
 
 
 

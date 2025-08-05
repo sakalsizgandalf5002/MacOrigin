@@ -6,5 +6,6 @@ public interface ITokenService
 {
     string CreateToken(User user);
     RefreshToken GenerateRefreshToken();
+    Task<AuthDto> RefreshAsync(Guid token); 
 
 }

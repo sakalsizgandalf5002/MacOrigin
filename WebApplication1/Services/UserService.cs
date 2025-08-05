@@ -44,6 +44,7 @@ public class UserService : IUserService
             throw new InvalidOperationException("Email already in use.");
 
         var user = _mapper.Map<User>(dto);
+        user.Email = dto.Email.ToLower(); 
         user.PasswordHash = _hasher.HashPassword(dto.Password);
         user.Role         = "Customer";
 
@@ -102,23 +103,6 @@ public class UserService : IUserService
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();
     }
-    public async Task<AuthDto> RefreshAsync(Guid token)
-    {
-        var rt = await _context.RefreshTokens
-            .Include(r => r.User)
-            .SingleOrDefaultAsync(r =>
-                r.Token == token && !r.Revoked && r.Expires > DateTime.UtcNow)
-            ?? throw new InvalidOperationException("Invalid refresh token.");
-
-        rt.Revoked = true;
-
-        var access = _token.CreateToken(rt.User);
-        var newRt = _token.GenerateRefreshToken();
-        rt.User.RefreshTokens.Add(newRt);
-
-        await _context.SaveChangesAsync();
-
-        return new AuthDto(access, newRt.Token.ToString());
-    }
+    
 
 }

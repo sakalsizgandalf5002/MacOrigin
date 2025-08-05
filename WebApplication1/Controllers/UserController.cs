@@ -13,6 +13,7 @@ public class UsersController : ControllerBase
 {
     private readonly IUserService _svc;
     public UsersController(IUserService svc) => _svc = svc;
+    
 
     [HttpPost("register")]
     [AllowAnonymous]
@@ -21,17 +22,10 @@ public class UsersController : ControllerBase
         await _svc.RegisterAsync(dto);
         return Ok();
     }
-    public record TokenDto(Guid Token);
 
-    [HttpPost("refresh")]
-    public async Task<ActionResult<AuthDto>> Refresh([FromBody] TokenDto dto)
-    {
-        var result = await _svc.RefreshAsync(dto.Token);
-        return Ok(result);
-    }
-
-    [HttpPost("login")]
+   
     [AllowAnonymous]
+    [HttpPost("login")]
     public async Task<IActionResult> Login(UserLoginDto dto)
         => Ok(await _svc.LoginAsync(dto));
 
@@ -39,17 +33,17 @@ public class UsersController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAll()
         => Ok(await _svc.GetAllAsync());
-
-    [HttpGet("{id:int}")]
+    
     [Authorize(Roles = "Admin")]
+    [HttpGet("{id:int}")]
     public async Task<IActionResult> Get(int id)
     {
         var user = await _svc.GetByIdAsync(id);
         return user == null ? NotFound() : Ok(user);
     }
-
-    [HttpPost]
+    
     [Authorize(Roles = "Admin")]
+    [HttpPost]
     public async Task<IActionResult> Create(UserCreateDto dto)
     {
         await _svc.CreateAsync(dto);
@@ -71,4 +65,6 @@ public class UsersController : ControllerBase
         await _svc.DeleteAsync(id);
         return NoContent();
     }
+    
+    
 }

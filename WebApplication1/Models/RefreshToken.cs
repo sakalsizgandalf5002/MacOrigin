@@ -8,5 +8,10 @@
         public bool Revoked { get; set; }
         public int UserId { get; set; }
         public User User { get; set; }
+        public DateTime Created { get; set; }
+        public string CreatedByIp { get; set; }
+        public DateTime? RevokedDate { get; set; }
+        public string RevokedByIp { get; set; }
+        public Guid? ReplacedById { get; set; }
     }
 }
