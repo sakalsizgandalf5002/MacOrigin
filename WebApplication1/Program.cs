@@ -48,6 +48,7 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+builder.Services.AddHttpContextAccessor();
 
 
 
